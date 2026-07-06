@@ -1,0 +1,19 @@
+//
+// SPDX-FileCopyrightText: 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+// Vendored AppIntro 6.3.1 — https://github.com/AppIntro/AppIntro (Apache-2.0)
+
+android_library {
+    name: "appintro",
+    platform_apis: true,
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["src/main/res"],
+    srcs: ["src/main/java/**/*.kt"],
+    static_libs: [
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.annotation_annotation",
+        "kotlin-stdlib",
+    ],
+}

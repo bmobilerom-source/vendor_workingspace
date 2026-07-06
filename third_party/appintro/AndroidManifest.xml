@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AppIntro 6.3.1 — https://github.com/AppIntro/AppIntro
+    SPDX-License-Identifier: Apache-2.0
+
+    Minimal manifest for Soong android_library packaging.
+    Upstream ships this module as a Gradle library without a
+    checked-in manifest (AGP synthesizes a default one); this is
+    the equivalent minimal manifest required by the Soong build.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.github.appintro" />

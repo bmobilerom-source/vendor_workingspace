@@ -1,0 +1,3 @@
+# Working Space — system_ext SELinux (minimal, system_uid priv-app)
+
+type working_space_service, system_api_service, system_server_service, service_manager_type;

@@ -1,0 +1,73 @@
+//
+// SPDX-FileCopyrightText: 2026 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+android_app {
+    name: "WorkingSpace",
+    platform_apis: true,
+    privileged: true,
+    system_ext_specific: true,
+    manifest: "app/src/main/AndroidManifest.xml",
+    certificate: "platform",
+    resource_dirs: ["app/src/main/res"],
+    defaults: [
+        "SettingsLibDefaults",
+    ],
+    srcs: [
+        "app/src/main/java/**/*.java",
+        "app/src/main/java/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.core_core-ktx",
+        "androidx.appcompat_appcompat",
+        "androidx.preference_preference",
+        "com.google.android.material_material",
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
+        "kotlinx-coroutines-core",
+        "gson-prebuilt-jar-2.9.1",
+        "hilt_android",
+        "org.lineageos.platform.internal",
+        "LineagePreferenceLib",
+        "androidx.activity_activity-compose",
+        "androidx.compose.animation_animation-core",
+        "androidx.compose.animation_animation-graphics",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.material3_material3",
+        "androidx.compose.material3_material3-window-size-class",
+        "androidx.compose.material_material-icons-core",
+        "androidx.compose.material_material-icons-extended",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.ui_ui",
+        "androidx.lifecycle_lifecycle-runtime",
+        "androidx.lifecycle_lifecycle-runtime-compose",
+        "androidx.lifecycle_lifecycle-viewmodel-compose",
+        "androidx.savedstate_savedstate",
+        "androidx.palette_palette",
+        "appintro",
+    ],
+    kotlincflags: [
+        "-Xjvm-default=all",
+        "-opt-in=kotlin.ExperimentalStdlibApi",
+        "-opt-in=kotlin.RequiresOptIn",
+        "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+        "-opt-in=androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+        "-P plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true",
+    ],
+    plugins: [
+        "dagger2-compiler",
+        "androidx.room_room-compiler-plugin",
+    ],
+    required: [
+        "privapp_whitelist_com.bmobile.workingspace.xml",
+    ],
+}
+
+prebuilt_etc_xml {
+    name: "privapp_whitelist_com.bmobile.workingspace.xml",
+    src: "app/src/main/privapp_whitelist_com.bmobile.workingspace.xml",
+    system_ext_specific: true,
+    filename_from_src: true,
+    sub_dir: "permissions",
+}

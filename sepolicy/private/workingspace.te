@@ -1,0 +1,7 @@
+# WorkingSpace (com.bmobile.workingspace, sharedUserId=system)
+
+allow system_app working_space_service:service_manager find;
+
+hal_client_domain(system_app, hal_lineage_health)
+
+allow system_app notification_service:service_manager find;
