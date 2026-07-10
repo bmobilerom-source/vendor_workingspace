@@ -47,3 +47,12 @@ See `hooks/HOST_INTEGRATION.md` for the full per-file breakdown of what each
 repo contributes, and `hooks/VERIFICATION.md` for the adb-based functional
 test checklist (session overlay, Focus mode DND, QS tile, hidden-app
 filtering) that was run against this series before it was committed.
+
+## Follow-up series (game mode for all apps)
+
+Performance / Battery interventions for non-manifest games are fixed in a
+separate two-repo series. See:
+
+- `hooks/COMMIT_SERIES_GAME_MODE.md` — `[N/2]` cross-links
+- `hooks/GAME_MODE_ALL_APPS.md` — root cause, data flow, validation
+- `hooks/ATTRIBUTION.md` — provenance and license notes

@@ -23,6 +23,7 @@ import android.content.pm.PackageManager
 import android.os.IDeviceIdleController
 import android.os.RemoteException
 import android.os.ServiceManager
+import android.provider.DeviceConfig
 import android.provider.Settings
 import com.bmobile.workingspace.R
 import com.bmobile.workingspace.data.GameConfig
@@ -45,15 +46,25 @@ class GameModeUtils @Inject constructor(private val context: Context) {
     }
 
     fun setIntervention(packageName: String, modeData: List<GameConfig>? = null) {
-        // Separate key and value by ;; to identify them from
-        // com.android.server.app.GameManagerService for the device_config property.
-        // Example: com.libremobileos.game;;mode=2,downscaleFactor=0.7:mode=3,downscaleFactor=0.8
-        val configValue = "${packageName};;${modeData?.asConfig()}"
-        Settings.Secure.putString(
-                context.contentResolver,
-                "game_overlay",
-                configValue
+        // GameManagerService reads per-package intervention strings from the game_overlay
+        // DeviceConfig namespace (key = package name, value = mode configs).
+        if (modeData == null) {
+            DeviceConfig.deleteProperty(DeviceConfig.NAMESPACE_GAME_OVERLAY, packageName)
+            return
+        }
+        DeviceConfig.setProperty(
+            DeviceConfig.NAMESPACE_GAME_OVERLAY,
+            packageName,
+            modeData.asConfig(),
+            false
         )
+    }
+
+    /** Re-apply DeviceConfig interventions for every registered Working Space app. */
+    fun syncInterventionsForRegisteredApps(systemSettings: SystemSettings) {
+        for (game in systemSettings.userGames) {
+            setIntervention(game.packageName, GameConfig.ModeBuilder.build())
+        }
     }
 
     fun setActiveGameMode(systemSettings: SystemSettings, mode: Int) {

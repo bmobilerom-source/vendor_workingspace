@@ -31,6 +31,7 @@ import android.os.UserHandle
 import android.util.Log
 import android.view.WindowManager
 import com.bmobile.workingspace.data.AppSettings
+import com.bmobile.workingspace.data.GameConfig
 import com.bmobile.workingspace.data.GameSession
 import com.bmobile.workingspace.data.SystemSettings
 import com.bmobile.workingspace.gamebar.brightness.BrightnessInteractor
@@ -183,15 +184,14 @@ class SessionService : Hilt_SessionService() {
     }
 
     private fun applyGameModeConfig(app: String) {
-        val userGame = settings.userGames.firstOrNull { it.packageName == app }
-        val preferred = userGame?.mode ?: GameModeUtils.defaultPreferredMode
-        
+        val userGame = settings.userGames.firstOrNull { it.packageName == app } ?: return
+        val preferred = userGame.mode
         gameModeUtils.activeGame = userGame
-        
-        val availableModes = gameManager.getAvailableGameModes(app)
-        if (availableModes.contains(preferred)) {
-            gameManager.setGameMode(app, preferred)
-        }
+        // Registered Working Space apps are treated as games by GameManagerService via
+        // FocusListManager; always apply the user's preferred mode instead of gating on
+        // manifest-declared available modes (non-game apps only expose Standard otherwise).
+        gameModeUtils.setIntervention(app, GameConfig.ModeBuilder.build())
+        gameManager.setGameMode(app, preferred)
     }
 
     override fun onDestroy() {

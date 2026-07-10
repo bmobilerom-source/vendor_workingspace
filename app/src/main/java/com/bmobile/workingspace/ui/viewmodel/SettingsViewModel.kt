@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.bmobile.workingspace.data.AppSettings
+import com.bmobile.workingspace.data.GameConfig
 import com.bmobile.workingspace.data.SystemSettings
 import com.bmobile.workingspace.data.UserGame
 import com.bmobile.workingspace.utils.GameModeUtils
@@ -166,12 +167,14 @@ class SettingsViewModel @Inject constructor(
         if (!games.any { it.packageName == packageName }) {
             games.add(UserGame(packageName))
             systemSettings.userGames = games
+            gameModeUtils.setIntervention(packageName, GameConfig.ModeBuilder.build())
         }
         loadRegisteredGames()
     }
 
     fun unregisterGame(packageName: String) {
         gameModeUtils.setAngleDriverChoice(packageName, GameModeUtils.DRIVER_CHOICE_DEFAULT)
+        gameModeUtils.setIntervention(packageName, null)
         val games = systemSettings.userGames.toMutableList()
         games.removeIf { it.packageName == packageName }
         systemSettings.userGames = games

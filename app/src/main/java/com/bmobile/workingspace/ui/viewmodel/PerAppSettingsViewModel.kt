@@ -106,6 +106,7 @@ class PerAppSettingsViewModel @Inject constructor(
 
     fun unregisterGame() {
         gameModeUtils.setAngleDriverChoice(packageName, GameModeUtils.DRIVER_CHOICE_DEFAULT)
+        gameModeUtils.setIntervention(packageName, null)
         val games = systemSettings.userGames.toMutableList()
         games.removeIf { it.packageName == packageName }
         systemSettings.userGames = games
