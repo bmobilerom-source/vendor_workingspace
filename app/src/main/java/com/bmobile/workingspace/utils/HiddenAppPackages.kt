@@ -17,7 +17,6 @@ object HiddenAppPackages {
         "at.bitfire.davdroid",
         "org.diekaiju.duckassist",
         "com.reecedunn.espeak",
-        "nethical.locklock",
         "com.google.android.gms",
         "com.cylonid.nativealpha",
         "org.chromium.webview_shell",

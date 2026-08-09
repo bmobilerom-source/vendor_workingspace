@@ -28,6 +28,7 @@ import android.os.Handler
 import android.os.Process
 import android.os.UserHandle
 import android.provider.Settings
+import android.util.Log
 import android.view.*
 import android.window.TaskFpsCallback
 import androidx.activity.OnBackPressedDispatcher
@@ -160,41 +161,41 @@ class GameSidebar(
                             onToggleFps = {
                                 showFpsState.value = !showFpsState.value
                                 appSettings.showFps = showFpsState.value
-                                    updateFpsTracking()
-                                    scheduleIdle()
-                                },
-                                pillExpanded = pillExpandedState.value,
-                                barTopPx = barTopState.intValue,
-                                onExpanded = { handler.post { setPillExpanded(true) } },
-                                onCollapsed = {
-                                    handler.post { setPillExpanded(false) }
-                                    scheduleIdle()
-                                },
-                                collapseRequestKey = collapseRequestState.intValue,
-                                onDragStart = {
-                                    val loc = IntArray(2)
-                                    gameBarView.getLocationOnScreen(loc)
-                                    gameBarLayoutParam.gravity = Gravity.TOP or Gravity.START
-                                    gameBarLayoutParam.x = loc[0]
-                                    gameBarLayoutParam.y = loc[1]
-                                    runCatching { wm.updateViewLayout(gameBarView, gameBarLayoutParam) }
-                                    Pair(loc[0], loc[1])
-                                },
-                                onDragUpdate = { x, y ->
-                                    gameBarLayoutParam.x = x
-                                    gameBarLayoutParam.y = y
-                                    runCatching { wm.updateViewLayout(gameBarView, gameBarLayoutParam) }
-                                },
-                                onDragEnd = { x, y ->
-                                    circleOnLeft = x < halfWidth
-                                    dockedOnLeftState.value = circleOnLeft
-                                    appSettings.x = if (circleOnLeft) -1 else 1
-                                    appSettings.y = y
-                                    dockGameBar()
-                                    runCatching { wm.updateViewLayout(gameBarView, gameBarLayoutParam) }
-                                    scheduleIdle()
-                                },
-                            )
+                                updateFpsTracking()
+                                scheduleIdle()
+                            },
+                            pillExpanded = pillExpandedState.value,
+                            barTopPx = barTopState.intValue,
+                            onExpanded = { handler.post { setPillExpanded(true) } },
+                            onCollapsed = {
+                                handler.post { setPillExpanded(false) }
+                                scheduleIdle()
+                            },
+                            collapseRequestKey = collapseRequestState.intValue,
+                            onDragStart = {
+                                val loc = IntArray(2)
+                                gameBarView.getLocationOnScreen(loc)
+                                gameBarLayoutParam.gravity = Gravity.TOP or Gravity.START
+                                gameBarLayoutParam.x = loc[0]
+                                gameBarLayoutParam.y = loc[1]
+                                runCatching { wm.updateViewLayout(gameBarView, gameBarLayoutParam) }
+                                Pair(loc[0], loc[1])
+                            },
+                            onDragUpdate = { x, y ->
+                                gameBarLayoutParam.x = x
+                                gameBarLayoutParam.y = y
+                                runCatching { wm.updateViewLayout(gameBarView, gameBarLayoutParam) }
+                            },
+                            onDragEnd = { x, y ->
+                                circleOnLeft = x < halfWidth
+                                dockedOnLeftState.value = circleOnLeft
+                                appSettings.x = if (circleOnLeft) -1 else 1
+                                appSettings.y = y
+                                dockGameBar()
+                                runCatching { wm.updateViewLayout(gameBarView, gameBarLayoutParam) }
+                                scheduleIdle()
+                            },
+                        )
                     }
                 }
             }
@@ -274,17 +275,27 @@ class GameSidebar(
         val pv = createPanelView()
         panelView = pv
 
-        try {
+        // CPU group boost is best-effort — never block the panel if it fails
+        // (SecurityException on some builds made the dashboard button appear dead).
+        runCatching {
             Process.setThreadGroupAndCpuset(Process.myPid(), Process.THREAD_GROUP_TOP_APP)
             Process.setProcessGroup(Process.myPid(), Process.THREAD_GROUP_TOP_APP)
+        }.onFailure { Log.w(TAG, "CPU group boost skipped", it) }
+
+        try {
             // Must run before addView(): see onSessionStart() for why ordering matters.
             OverlayComposeInitializer.onAttachedToWindow(pv)
             wm.addView(pv, panelLayoutParam)
             gameBarView.visibility = View.GONE
-        } catch (_: Exception) {
+        } catch (t: Throwable) {
+            Log.e(TAG, "showPanel addView failed", t)
             brightnessInteractor.dispose()
             fpsInteractor.dispose()
+            panelView = null
             panelShowing = false
+            runCatching {
+                OverlayComposeInitializer.onDetachedFromWindow(pv)
+            }
         }
     }
 
@@ -575,17 +586,20 @@ class GameSidebar(
 
     private fun createPanelLayoutParam() = WindowManager.LayoutParams(
         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+        // Focusable so Compose dashboard tiles receive clicks reliably.
+        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
         PixelFormat.TRANSLUCENT
     ).apply {
         width = WindowManager.LayoutParams.MATCH_PARENT
         height = WindowManager.LayoutParams.MATCH_PARENT
         layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         preferMinimalPostProcessing = true
+        softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
     }
 
     companion object {
+        private const val TAG = "GameSidebar"
         private const val IDLE_TIMEOUT_MS = 3000L
     }
 }

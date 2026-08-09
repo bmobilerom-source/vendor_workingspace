@@ -43,10 +43,16 @@ class SettingsActivity : Hilt_SettingsActivity() {
         // activity on every launch until onboarding had been completed.
         super.onCreate(savedInstanceState)
         if (!IntroPreferences.isCompleted(this)) {
-            startActivity(Intent(this, WorkingSpaceIntroActivity::class.java))
+            startActivity(
+                Intent(this, WorkingSpaceIntroActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                },
+            )
             finish()
             return
         }
+        // Reaching the hub means intro is done forever (heals lost prefs).
+        IntroPreferences.setCompleted(this)
         enableEdgeToEdge()
         hideSystemBars()
 

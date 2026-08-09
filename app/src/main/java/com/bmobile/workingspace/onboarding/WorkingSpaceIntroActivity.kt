@@ -19,6 +19,13 @@ class WorkingSpaceIntroActivity : AppIntro2() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Already finished once — never show slides again.
+        if (IntroPreferences.isCompleted(this)) {
+            goToApp()
+            return
+        }
+
         isSkipButtonEnabled = true
         isColorTransitionsEnabled = true
         setIndicatorColor(
@@ -82,7 +89,15 @@ class WorkingSpaceIntroActivity : AppIntro2() {
 
     private fun finishIntro() {
         IntroPreferences.setCompleted(this)
-        startActivity(Intent(this, SettingsActivity::class.java))
+        goToApp()
+    }
+
+    private fun goToApp() {
+        startActivity(
+            Intent(this, SettingsActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            },
+        )
         finish()
     }
 }

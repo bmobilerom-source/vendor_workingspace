@@ -7,7 +7,8 @@ android_app {
     name: "WorkingSpace",
     platform_apis: true,
     privileged: true,
-    system_ext_specific: true,
+    // crosshatch retrofit: tip-over on system_ext after OmniJaws; keep with product.
+    product_specific: true,
     manifest: "app/src/main/AndroidManifest.xml",
     certificate: "platform",
     resource_dirs: ["app/src/main/res"],
@@ -67,7 +68,7 @@ android_app {
 prebuilt_etc_xml {
     name: "privapp_whitelist_com.bmobile.workingspace.xml",
     src: "app/src/main/privapp_whitelist_com.bmobile.workingspace.xml",
-    system_ext_specific: true,
+    product_specific: true,
     filename_from_src: true,
     sub_dir: "permissions",
 }

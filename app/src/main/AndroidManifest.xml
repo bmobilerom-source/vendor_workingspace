@@ -59,15 +59,26 @@
             android:excludeFromRecents="true"
             android:screenOrientation="landscape"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- LAUNCHER lives on LauncherIcon alias so Kids Hub can hide/show without
+                 disabling SettingsActivity (still opened via explicit component). -->
             <intent-filter>
                 <action android:name="com.bmobile.workingspace.OPEN_SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity-alias
+            android:name=".settings.LauncherIcon"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/settings_title"
+            android:targetActivity=".settings.SettingsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
         <activity
             android:name=".onboarding.WorkingSpaceIntroActivity"
